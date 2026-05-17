@@ -1,0 +1,677 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  .roadmap { padding: 1.5rem 0; }
+  .header { margin-bottom: 2rem; }
+  .header h2 { font-size: 18px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .header p { font-size: 13px; color: var(--color-text-secondary); }
+  .phase-nav { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .phase-btn { padding: 6px 14px; font-size: 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; transition: all 0.15s; font-family: var(--font-sans); }
+  .phase-btn:hover { background: var(--color-background-secondary); }
+  .phase-btn.active { background: var(--color-background-secondary); color: var(--color-text-primary); font-weight: 500; border-color: var(--color-border-primary); }
+  .phase-card { display: none; }
+  .phase-card.active { display: block; }
+  .phase-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); flex-wrap: wrap; gap: 8px; }
+  .phase-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); }
+  .phase-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 3px; }
+  .phase-badge { font-size: 11px; padding: 3px 10px; border-radius: 99px; font-weight: 500; white-space: nowrap; }
+  .badge-foundation { background: #E6F1FB; color: #0C447C; }
+  .badge-intermediate { background: #E1F5EE; color: #085041; }
+  .badge-specialization { background: #EEEDFE; color: #3C3489; }
+  .badge-mastery { background: #FAEEDA; color: #633806; }
+  .schedule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem; }
+  .schedule-card { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
+  .schedule-card h4 { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; }
+  .schedule-row { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+  .time-badge { font-size: 11px; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; font-weight: 500; }
+  .time-study { background: #E6F1FB; color: #185FA5; }
+  .time-work { background: #F1EFE8; color: #444441; }
+  .time-evening { background: #EEEDFE; color: #534AB7; }
+  .time-sleep { background: #F1EFE8; color: #888780; }
+  .time-free { background: #EAF3DE; color: #3B6D11; }
+  .schedule-label { font-size: 12px; color: var(--color-text-secondary); line-height: 1.4; }
+  .section { margin-bottom: 1.25rem; }
+  .section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .topics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 8px; }
+  .topic-pill { background: var(--color-background-secondary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); padding: 8px 12px; font-size: 12px; color: var(--color-text-primary); }
+  .topic-pill .t-icon { font-size: 14px; margin-right: 5px; vertical-align: -1px; }
+  .topic-pill .t-label { font-weight: 500; display: block; margin-bottom: 2px; }
+  .topic-pill .t-detail { font-size: 11px; color: var(--color-text-secondary); }
+  .project-list { display: flex; flex-direction: column; gap: 8px; }
+  .project-item { display: flex; gap: 12px; padding: 10px 14px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); align-items: flex-start; }
+  .project-num { width: 22px; height: 22px; border-radius: 50%; background: var(--color-background-secondary); font-size: 11px; font-weight: 500; color: var(--color-text-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .project-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .project-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .milestone-bar { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 14px; margin-bottom: 1.25rem; }
+  .milestone-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 6px; }
+  .milestone-items { display: flex; flex-wrap: wrap; gap: 6px; }
+  .milestone-item { font-size: 11px; padding: 3px 9px; background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: 99px; color: var(--color-text-secondary); }
+  .progress-strip { display: flex; gap: 3px; margin-bottom: 1.5rem; }
+  .progress-block { flex: 1; height: 4px; border-radius: 2px; }
+  .p1 { background: #378ADD; }
+  .p2 { background: #1D9E75; }
+  .p3 { background: #7F77DD; }
+  .p4 { background: #BA7517; }
+  .p-inactive { background: var(--color-border-tertiary); }
+  .weekend-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .weekend-day { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; }
+  .weekend-day h4 { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 10px; }
+  .weekend-slot { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 7px; }
+  .ws-time { font-size: 11px; color: var(--color-text-secondary); white-space: nowrap; min-width: 80px; }
+  .ws-act { font-size: 12px; color: var(--color-text-primary); line-height: 1.4; }
+  .resources { display: flex; flex-wrap: wrap; gap: 6px; }
+  .resource-tag { font-size: 11px; padding: 3px 8px; border-radius: 4px; border: 0.5px solid var(--color-border-secondary); color: var(--color-text-secondary); }
+  @media (max-width: 480px) {
+    .schedule-grid, .weekend-grid { grid-template-columns: 1fr; }
+    .topics-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="roadmap">
+  <div class="header">
+    <h2>Principal engineer: 6-month roadmap</h2>
+    <p>4 hours/day · Project-driven · Distributed computing + ML specialisations</p>
+  </div>
+
+  <div class="progress-strip" id="progressStrip">
+    <div class="progress-block p1"></div>
+    <div class="progress-block p1"></div>
+    <div class="progress-block p2"></div>
+    <div class="progress-block p2"></div>
+    <div class="progress-block p3"></div>
+    <div class="progress-block p3"></div>
+    <div class="progress-block p4 p-inactive" id="pb7"></div>
+    <div class="progress-block p4 p-inactive" id="pb8"></div>
+  </div>
+
+  <div class="phase-nav" id="phaseNav">
+    <button class="phase-btn active" onclick="showPhase(0)">Phase 1 · M1–M2</button>
+    <button class="phase-btn" onclick="showPhase(1)">Phase 2 · M2–M3</button>
+    <button class="phase-btn" onclick="showPhase(2)">Phase 3 · M4–M5</button>
+    <button class="phase-btn" onclick="showPhase(3)">Phase 4 · M5–M6</button>
+    <button class="phase-btn" onclick="showPhase(4)">Daily schedule</button>
+    <button class="phase-btn" onclick="showPhase(5)">Weekend plan</button>
+  </div>
+
+  <!-- PHASE 1 -->
+  <div class="phase-card active" id="phase-0">
+    <div class="phase-header">
+      <div>
+        <div class="phase-title">Phase 1 — Fortress of fundamentals</div>
+        <div class="phase-sub">Months 1–2 · The bedrock everything else stands on</div>
+      </div>
+      <span class="phase-badge badge-foundation">Foundation</span>
+    </div>
+    <div class="milestone-bar">
+      <div class="milestone-title">Exit criteria (what you can do by end of month 2)</div>
+      <div class="milestone-items">
+        <span class="milestone-item">Implement any sort from scratch</span>
+        <span class="milestone-item">Explain Big-O intuitively</span>
+        <span class="milestone-item">Write a mini allocator in C</span>
+        <span class="milestone-item">Solve Leetcode mediums in Python</span>
+        <span class="milestone-item">Explain TCP/IP handshake precisely</span>
+        <span class="milestone-item">Prove basic linear algebra facts</span>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Core topics</div>
+      <div class="topics-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-cpu t-icon" aria-hidden="true"></i>CS fundamentals</span>
+          <span class="t-detail">How computers actually work: bits, memory, CPU, cache hierarchy, OS basics (processes, threads, virtual memory, syscalls)</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-math t-icon" aria-hidden="true"></i>Mathematics</span>
+          <span class="t-detail">Discrete math (sets, logic, proofs), modular arithmetic, probability basics, linear algebra (vectors, matrices, dot product), calculus intuition</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-code t-icon" aria-hidden="true"></i>Programming fundamentals</span>
+          <span class="t-detail">Memory model, pointers, stack vs heap, compilation pipeline, type systems, recursion, higher-order functions. Primary language: Python. Secondary: C basics.</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-chart-bar t-icon" aria-hidden="true"></i>DSA — Part 1</span>
+          <span class="t-detail">Arrays, linked lists, stacks, queues, hash maps from scratch. Big-O analysis. Binary search. Two-pointer & sliding window patterns.</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-network t-icon" aria-hidden="true"></i>Networking basics</span>
+          <span class="t-detail">TCP/IP, DNS, HTTP/1.1 vs 2 vs 3, sockets, TLS handshake. Build a raw HTTP server with sockets.</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-database t-icon" aria-hidden="true"></i>Storage fundamentals</span>
+          <span class="t-detail">File systems, B-Trees, how SQLite works internally, ACID properties, indexes. Read the SQLite design doc.</span>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Projects (ship these)</div>
+      <div class="project-list">
+        <div class="project-item">
+          <div class="project-num">1</div>
+          <div>
+            <div class="project-name">Memory allocator in C</div>
+            <div class="project-desc">Implement malloc/free using sbrk(). Handle fragmentation, coalescing. Forces deep understanding of the heap, pointers, and OS memory management.</div>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">2</div>
+          <div>
+            <div class="project-name">HTTP/1.1 server from raw sockets</div>
+            <div class="project-desc">Python or C. Parse raw TCP bytes, handle GET/POST, serve static files, support keep-alive. No frameworks. Teaches networking, byte parsing, concurrency primitives.</div>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">3</div>
+          <div>
+            <div class="project-name">DSA library</div>
+            <div class="project-desc">Implement from scratch: dynamic array, linked list, hash map (with chaining + open addressing), binary search tree, min-heap. Write tests. Profile with cProfile.</div>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">4</div>
+          <div>
+            <div class="project-name">25 Leetcode problems</div>
+            <div class="project-desc">Easy→Medium progression. Focus on arrays, strings, hashing. Blind 75 list. Write complexity analysis for every solution.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Key resources</div>
+      <div class="resources">
+        <span class="resource-tag">CS:APP (Bryant & O'Hallaron)</span>
+        <span class="resource-tag">Nand2Tetris (Part 1)</span>
+        <span class="resource-tag">CLRS Ch 1–11</span>
+        <span class="resource-tag">3Blue1Brown Linear Algebra</span>
+        <span class="resource-tag">Beej's Guide to Network Programming</span>
+        <span class="resource-tag">SQLite internals blog</span>
+        <span class="resource-tag">Python Fluent Python Ch 1–10</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 2 -->
+  <div class="phase-card" id="phase-1">
+    <div class="phase-header">
+      <div>
+        <div class="phase-title">Phase 2 — Systems thinking + advanced DSA</div>
+        <div class="phase-sub">Months 2.5–3.5 · Algorithms meet real systems</div>
+      </div>
+      <span class="phase-badge badge-intermediate">Intermediate</span>
+    </div>
+    <div class="milestone-bar">
+      <div class="milestone-title">Exit criteria</div>
+      <div class="milestone-items">
+        <span class="milestone-item">Design a key-value store</span>
+        <span class="milestone-item">Explain CAP theorem with examples</span>
+        <span class="milestone-item">Solve graph problems (BFS/DFS/Dijkstra)</span>
+        <span class="milestone-item">Implement a basic DB query planner</span>
+        <span class="milestone-item">Profile + fix a perf bottleneck</span>
+        <span class="milestone-item">Understand latency numbers by heart</span>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Core topics</div>
+      <div class="topics-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-chart-dots t-icon" aria-hidden="true"></i>DSA — Part 2</span>
+          <span class="t-detail">Trees (AVL, Red-Black), graphs (BFS, DFS, Dijkstra, Bellman-Ford, Topological sort), dynamic programming, greedy algorithms, tries, segment trees</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-server t-icon" aria-hidden="true"></i>Systems design fundamentals</span>
+          <span class="t-detail">CAP theorem, consistency models, replication, partitioning/sharding, load balancing, caching layers (Redis internals), CDN, message queues (Kafka basics)</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-gauge t-icon" aria-hidden="true"></i>Performance engineering — foundations</span>
+          <span class="t-detail">CPU cache effects, branch prediction, false sharing, SIMD basics, latency numbers (L1=1ns, RAM=100ns, disk=1ms). Profiling with perf, flamegraphs, py-spy.</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-database t-icon" aria-hidden="true"></i>Database internals</span>
+          <span class="t-detail">B+ Tree vs LSM Tree, WAL (write-ahead log), MVCC, query planning, index design. Read CMU 15-445 notes. Implement a toy query planner.</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-lock t-icon" aria-hidden="true"></i>Concurrency</span>
+          <span class="t-detail">Threads, mutexes, semaphores, condition variables, deadlocks, lock-free data structures, memory ordering (happens-before). Python threading + asyncio deeply.</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-terminal t-icon" aria-hidden="true"></i>Platform basics</span>
+          <span class="t-detail">Linux internals: scheduler, cgroups, namespaces. Docker from scratch. Understand how containers differ from VMs at the kernel level.</span>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Projects (ship these)</div>
+      <div class="project-list">
+        <div class="project-item">
+          <div class="project-num">1</div>
+          <div>
+            <div class="project-name">Redis-lite: in-memory key-value store</div>
+            <div class="project-desc">Implement GET/SET/EXPIRE/TTL, persistence (RDB snapshot), pub-sub. Use Python asyncio for the event loop. Then benchmark it against real Redis.</div>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">2</div>
+          <div>
+            <div class="project-name">LSM-Tree storage engine</div>
+            <div class="project-desc">Implement memtable → SSTable flush → compaction. This is the core of LevelDB/RocksDB. Forces deep understanding of write-optimised storage.</div>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">3</div>
+          <div>
+            <div class="project-name">Performance profiling deep-dive</div>
+            <div class="project-desc">Take a slow Python program, generate flamegraph with py-spy, identify bottleneck, rewrite hot path in Cython or C extension. Measure before/after with benchmarks.</div>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">4</div>
+          <div>
+            <div class="project-name">35 more Leetcode (medium/hard)</div>
+            <div class="project-desc">Graphs, DP, trees. Neetcode 150 list. Time yourself. Aim for 25 min per medium. Keep a "patterns notebook".</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Key resources</div>
+      <div class="resources">
+        <span class="resource-tag">DDIA (Designing Data-Intensive Apps)</span>
+        <span class="resource-tag">CMU 15-445 lecture notes</span>
+        <span class="resource-tag">CLRS Ch 22–25 (Graphs)</span>
+        <span class="resource-tag">Systems Performance – Brendan Gregg</span>
+        <span class="resource-tag">LevelDB internals blog</span>
+        <span class="resource-tag">Neetcode.io</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 3 -->
+  <div class="phase-card" id="phase-2">
+    <div class="phase-header">
+      <div>
+        <div class="phase-title">Phase 3 — Distributed computing + ML specialisations</div>
+        <div class="phase-sub">Months 4–5 · Two parallel tracks, 2 hours each per day</div>
+      </div>
+      <span class="phase-badge badge-specialization">Specialisation</span>
+    </div>
+    <div class="milestone-bar">
+      <div class="milestone-title">Exit criteria</div>
+      <div class="milestone-items">
+        <span class="milestone-item">Implement Raft consensus</span>
+        <span class="milestone-item">Build + train a neural net from scratch</span>
+        <span class="milestone-item">Explain Paxos vs Raft tradeoffs</span>
+        <span class="milestone-item">Deploy a distributed KV store</span>
+        <span class="milestone-item">Implement backpropagation by hand</span>
+        <span class="milestone-item">Profile distributed bottlenecks</span>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1.25rem;">
+      <div style="border: 0.5px solid #B5D4F4; border-radius: var(--border-radius-md); padding: 12px 14px;">
+        <div style="font-size: 12px; font-weight: 500; color: #185FA5; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Track A: Distributed computing</div>
+        <ul style="font-size: 12px; color: var(--color-text-secondary); padding-left: 14px; line-height: 2;">
+          <li>Consensus: Paxos, Raft, Zab</li>
+          <li>Distributed transactions: 2PC, Saga</li>
+          <li>CRDTs and eventual consistency</li>
+          <li>Vector clocks, Lamport timestamps</li>
+          <li>MapReduce, Spark internals</li>
+          <li>gRPC, Protobuf, service mesh</li>
+          <li>Kubernetes internals (scheduler, etcd)</li>
+          <li>Distributed tracing (Jaeger/OTEL)</li>
+          <li>Chaos engineering principles</li>
+        </ul>
+      </div>
+      <div style="border: 0.5px solid #CDA9F4; border-radius: var(--border-radius-md); padding: 12px 14px;">
+        <div style="font-size: 12px; font-weight: 500; color: #534AB7; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">Track B: Machine learning</div>
+        <ul style="font-size: 12px; color: var(--color-text-secondary); padding-left: 14px; line-height: 2;">
+          <li>Linear/logistic regression (derive it)</li>
+          <li>Gradient descent from scratch (numpy)</li>
+          <li>Neural nets: forward + backprop by hand</li>
+          <li>CNNs and weight initialisation</li>
+          <li>Transformers: attention mechanism</li>
+          <li>Optimisers: SGD, Adam, AdamW</li>
+          <li>Regularisation, batch norm, dropout</li>
+          <li>ML systems: data pipelines, feature stores</li>
+          <li>Model serving + inference optimisation</li>
+        </ul>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Performance + platform engineering (woven in throughout)</div>
+      <div class="topics-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-speedboat t-icon" aria-hidden="true"></i>Performance engineering</span>
+          <span class="t-detail">USE method (utilisation, saturation, errors), RED method, CPU/memory/IO profiling, tail latency analysis (p99, p999), queueing theory basics, Little's Law</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-cloud t-icon" aria-hidden="true"></i>Platform engineering</span>
+          <span class="t-detail">IaC (Terraform), GitOps, CI/CD pipelines, observability stack (metrics + logs + traces), SLOs/SLAs/error budgets, on-call practices</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-activity t-icon" aria-hidden="true"></i>Reliability engineering</span>
+          <span class="t-detail">Failure modes, blast radius reduction, circuit breakers, bulkhead pattern, graceful degradation, load shedding, back-pressure</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-shield t-icon" aria-hidden="true"></i>Security engineering</span>
+          <span class="t-detail">mTLS, JWT internals, OAuth2/OIDC flows, secrets management (Vault), network policies, RBAC in Kubernetes</span>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Projects (ship these)</div>
+      <div class="project-list">
+        <div class="project-item">
+          <div class="project-num">1</div>
+          <div>
+            <div class="project-name">Raft consensus implementation</div>
+            <div class="project-desc">Full Raft in Python or Go: leader election, log replication, snapshotting. Run 5-node cluster. Inject faults. This is the gold standard distributed systems project.</div>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">2</div>
+          <div>
+            <div class="project-name">Neural network from scratch (numpy only)</div>
+            <div class="project-desc">MLP that trains on MNIST. Hand-implement forward pass, loss, backprop, weight updates. Then add batch norm. No PyTorch. Forces real understanding of gradients.</div>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">3</div>
+          <div>
+            <div class="project-name">Distributed key-value store with Raft</div>
+            <div class="project-desc">Build on your Raft implementation. Add partitioning (consistent hashing), client retry logic, linearisable reads. Deploy on 3 cloud VMs.</div>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">4</div>
+          <div>
+            <div class="project-name">Tiny transformer (character-level LLM)</div>
+            <div class="project-desc">Andrej Karpathy's nanoGPT, but every line explained. Train on Shakespeare. Then optimise inference: KV cache, quantisation basics.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Key resources</div>
+      <div class="resources">
+        <span class="resource-tag">MIT 6.824 Distributed Systems</span>
+        <span class="resource-tag">Raft paper (Ongaro 2014)</span>
+        <span class="resource-tag">fast.ai Practical DL</span>
+        <span class="resource-tag">Karpathy's nanoGPT / makemore</span>
+        <span class="resource-tag">Brendan Gregg BPF Performance Tools</span>
+        <span class="resource-tag">SRE Book (Google, free online)</span>
+        <span class="resource-tag">The Morning Paper (Raft, Spanner, Dynamo)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PHASE 4 -->
+  <div class="phase-card" id="phase-3">
+    <div class="phase-header">
+      <div>
+        <div class="phase-title">Phase 4 — Synthesis + principal-level thinking</div>
+        <div class="phase-sub">Months 5.5–6 · Build systems end-to-end, mentor, design at scale</div>
+      </div>
+      <span class="phase-badge badge-mastery">Mastery</span>
+    </div>
+    <div class="milestone-bar">
+      <div class="milestone-title">Exit criteria</div>
+      <div class="milestone-items">
+        <span class="milestone-item">Design Twitter/Uber/YouTube system</span>
+        <span class="milestone-item">Lead a technical RFC</span>
+        <span class="milestone-item">Optimise a system 10x with data</span>
+        <span class="milestone-item">Build an end-to-end ML pipeline</span>
+        <span class="milestone-item">Write a distributed systems post-mortem</span>
+        <span class="milestone-item">Contribute to an OSS project</span>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Focus areas</div>
+      <div class="topics-grid" style="grid-template-columns: repeat(2, 1fr);">
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-layout t-icon" aria-hidden="true"></i>System design mastery</span>
+          <span class="t-detail">Design URL shorteners, distributed caches, Kafka clones, real-time leaderboards. Practice with 45-min timebox. Learn trade-off articulation: "I'd choose X because Y at this scale"</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-brain t-icon" aria-hidden="true"></i>ML systems engineering</span>
+          <span class="t-detail">Feature stores, data versioning (DVC), model registries, online vs offline inference, A/B testing infra, monitoring for data drift, training pipelines at scale</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-writing t-icon" aria-hidden="true"></i>Engineering leadership</span>
+          <span class="t-detail">Writing RFCs, ADRs (Architecture Decision Records), technical roadmaps. Giving code reviews that teach. Estimating projects. Communicating to non-engineers.</span>
+        </div>
+        <div class="topic-pill">
+          <span class="t-label"><i class="ti ti-test-pipe t-icon" aria-hidden="true"></i>Advanced testing + reliability</span>
+          <span class="t-detail">Property-based testing (Hypothesis), fuzz testing, load testing (k6, locust), chaos experiments, capacity planning, game-day simulations</span>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Capstone projects (pick 2)</div>
+      <div class="project-list">
+        <div class="project-item">
+          <div class="project-num">★</div>
+          <div>
+            <div class="project-name">End-to-end ML platform</div>
+            <div class="project-desc">Data ingestion → feature engineering → training pipeline → model serving API (FastAPI) → monitoring dashboard. Deploy on Kubernetes. Instrument with Prometheus + Grafana.</div>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">★</div>
+          <div>
+            <div class="project-name">Distributed streaming system (Kafka-lite)</div>
+            <div class="project-desc">Implement topics, partitions, consumer groups, offset management. Use your Raft implementation for broker coordination. Benchmark at 1M msgs/sec.</div>
+          </div>
+        </div>
+        <div class="project-item">
+          <div class="project-num">★</div>
+          <div>
+            <div class="project-name">Performance engineering case study</div>
+            <div class="project-desc">Take a real open-source system (Postgres, Redis, Nginx). Profile it deeply. Write a 3000-word analysis of where the bottlenecks are and why. Propose + implement one optimisation. Submit as a blog post or PR.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-title">Reading for the final level</div>
+      <div class="resources">
+        <span class="resource-tag">A Philosophy of Software Design</span>
+        <span class="resource-tag">Staff Engineer (Larson)</span>
+        <span class="resource-tag">Spanner, Dynamo, Bigtable papers</span>
+        <span class="resource-tag">MLSys conference papers</span>
+        <span class="resource-tag">High Performance Browser Networking</span>
+        <span class="resource-tag">Accelerate (DevOps research)</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- DAILY SCHEDULE -->
+  <div class="phase-card" id="phase-4">
+    <div class="phase-header">
+      <div>
+        <div class="phase-title">Daily schedule — weekdays</div>
+        <div class="phase-sub">4 hours of study + 10 hours of work, structured for deep focus</div>
+      </div>
+    </div>
+    <div class="schedule-grid">
+      <div class="schedule-card">
+        <h4>Morning block (primary)</h4>
+        <div class="schedule-row">
+          <span class="time-badge time-study">5:30–6:00</span>
+          <span class="schedule-label">Wake up. Water, no phone. Review yesterday's notes (15 min). Set today's single learning goal.</span>
+        </div>
+        <div class="schedule-row">
+          <span class="time-badge time-study">6:00–7:30</span>
+          <span class="schedule-label"><strong>Deep study block 1.</strong> New concept or chapter. No distractions. This is your most cognitively fresh time — use it for the hardest material.</span>
+        </div>
+        <div class="schedule-row">
+          <span class="time-badge time-study">7:30–8:00</span>
+          <span class="schedule-label">Exercise + shower. Non-negotiable. Physical state = cognitive state.</span>
+        </div>
+        <div class="schedule-row">
+          <span class="time-badge time-study">8:00–9:00</span>
+          <span class="schedule-label"><strong>Deep study block 2.</strong> Coding problems or project work. Implement what you just learned.</span>
+        </div>
+        <div class="schedule-row">
+          <span class="time-badge time-work">9:00–10:00</span>
+          <span class="schedule-label">Commute / prep for work. Listen to tech podcast or re-read notes.</span>
+        </div>
+      </div>
+      <div class="schedule-card">
+        <h4>Work day</h4>
+        <div class="schedule-row">
+          <span class="time-badge time-work">10:00–1:00</span>
+          <span class="schedule-label">Work (deep work block). Apply concepts from your study. Treat work projects as learning opportunities.</span>
+        </div>
+        <div class="schedule-row">
+          <span class="time-badge time-work">1:00–2:00</span>
+          <span class="schedule-label">Lunch. Read a paper or blog post (15–20 min). Rest otherwise.</span>
+        </div>
+        <div class="schedule-row">
+          <span class="time-badge time-work">2:00–5:00</span>
+          <span class="schedule-label">Work. During slow moments, write flashcards (Anki) on what you studied in the morning.</span>
+        </div>
+        <div class="schedule-row">
+          <span class="time-badge time-free">5:00–8:00</span>
+          <span class="schedule-label">Dinner, family, downtime. Fully disconnect. Recovery is part of the system.</span>
+        </div>
+      </div>
+    </div>
+    <div class="schedule-card" style="margin-bottom: 12px;">
+      <h4>Evening block</h4>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div>
+          <div class="schedule-row">
+            <span class="time-badge time-evening">8:00–9:00</span>
+            <span class="schedule-label"><strong>Deep study block 3.</strong> Project work, coding, or re-reading. Light on new concepts — consolidation and building.</span>
+          </div>
+          <div class="schedule-row">
+            <span class="time-badge time-evening">9:00–9:30</span>
+            <span class="schedule-label">Anki review (spaced repetition). Write in your learning journal: what did I learn today, what's still unclear?</span>
+          </div>
+          <div class="schedule-row">
+            <span class="time-badge time-evening">9:30–10:00</span>
+            <span class="schedule-label">Wind down. No screens after 10pm. Plan tomorrow's goal.</span>
+          </div>
+        </div>
+        <div style="background: var(--color-background-primary); border-radius: var(--border-radius-md); padding: 10px 14px; border: 0.5px solid var(--color-border-tertiary);">
+          <div style="font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 8px;">Daily study breakdown</div>
+          <div style="font-size: 12px; color: var(--color-text-secondary); line-height: 2.2;">
+            <div>5:30 AM study: <strong style="color:var(--color-text-primary)">1.5 hr</strong></div>
+            <div>8:00 AM coding: <strong style="color:var(--color-text-primary)">1 hr</strong></div>
+            <div>8:00 PM project: <strong style="color:var(--color-text-primary)">1 hr</strong></div>
+            <div>9:00 PM review: <strong style="color:var(--color-text-primary)">0.5 hr</strong></div>
+            <div style="border-top: 0.5px solid var(--color-border-tertiary); margin-top: 6px; padding-top: 6px; font-weight: 500; color: var(--color-text-primary);">Total: 4 hours/day ✓</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEEKEND SCHEDULE -->
+  <div class="phase-card" id="phase-5">
+    <div class="phase-header">
+      <div>
+        <div class="phase-title">Weekend study plan</div>
+        <div class="phase-sub">6–7 hours Saturday · 4–5 hours Sunday · Rest is mandatory</div>
+      </div>
+    </div>
+    <div class="weekend-grid">
+      <div class="weekend-day">
+        <h4>Saturday — heavy learning day</h4>
+        <div class="weekend-slot">
+          <span class="ws-time">6:00–6:30</span>
+          <span class="ws-act">Wake. Review week's notes. Identify the one gap from the week.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">6:30–9:00</span>
+          <span class="ws-act"><strong>Deep block 1.</strong> New chapter or paper. Take handwritten notes. No skimming — go slow and understand deeply.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">9:00–9:30</span>
+          <span class="ws-act">Break. Walk. Breakfast.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">9:30–12:00</span>
+          <span class="ws-act"><strong>Project build session.</strong> Push your current project forward. Aim for a working end-state by day's end.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">12:00–2:00</span>
+          <span class="ws-act">Lunch + rest. Nap if needed. Walk outside.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">2:00–4:00</span>
+          <span class="ws-act"><strong>DSA practice.</strong> 3–4 Leetcode problems. Focus on patterns, not grinding. Analyse solutions you got wrong.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">4:00–5:00</span>
+          <span class="ws-act">Write: blog post, or document what you built. Teaching = learning. Even a private doc works.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">5:00 onwards</span>
+          <span class="ws-act">Personal time. Full rest. Social. Do not study.</span>
+        </div>
+      </div>
+      <div class="weekend-day">
+        <h4>Sunday — consolidation day</h4>
+        <div class="weekend-slot">
+          <span class="ws-time">7:00–7:30</span>
+          <span class="ws-act">Wake later. No alarm. Breakfast + review the week's learning journal.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">8:00–10:00</span>
+          <span class="ws-act"><strong>Weak spot session.</strong> Whatever was hardest this week — revisit it. Read a different explanation. Draw diagrams. Rubber-duck it.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">10:00–11:00</span>
+          <span class="ws-act">Anki review (full weekly batch). System design practice: sketch one system design from scratch in 45 min.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">11:00–12:00</span>
+          <span class="ws-act">Plan next week: topics, projects, problems. Write 3 specific learning goals. Prep materials so weekday mornings start immediately.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">12:00–2:00</span>
+          <span class="ws-act"><strong>Optional deep work.</strong> Only if energised. Project refinement, code review of your own work, or reading a research paper.</span>
+        </div>
+        <div class="weekend-slot">
+          <span class="ws-time">2:00 onwards</span>
+          <span class="ws-act">Complete rest. Prepare mentally for the week. Sleep by 10pm Sunday.</span>
+        </div>
+      </div>
+    </div>
+    <div style="background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; margin-top: 12px;">
+      <div style="font-size: 12px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 6px;">Weekly total study hours</div>
+      <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+        <div style="font-size: 12px; color: var(--color-text-secondary);">Mon–Fri: <strong style="color:var(--color-text-primary)">5 × 4 = 20 hrs</strong></div>
+        <div style="font-size: 12px; color: var(--color-text-secondary);">Saturday: <strong style="color:var(--color-text-primary)">~6.5 hrs</strong></div>
+        <div style="font-size: 12px; color: var(--color-text-secondary);">Sunday: <strong style="color:var(--color-text-primary)">~3.5 hrs</strong></div>
+        <div style="font-size: 12px; font-weight: 500; color: var(--color-text-primary); border-left: 0.5px solid var(--color-border-secondary); padding-left: 16px;">Weekly total: ~30 hours</div>
+        <div style="font-size: 12px; font-weight: 500; color: var(--color-text-primary);">6-month total: ~720 hours</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function showPhase(idx) {
+  document.querySelectorAll('.phase-card').forEach((c,i) => {
+    c.classList.toggle('active', i === idx);
+  });
+  document.querySelectorAll('.phase-btn').forEach((b,i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  const phaseColors = ['p1','p2','p3','p4','p1','p1'];
+  const blocks = document.querySelectorAll('.progress-block');
+  blocks.forEach((b, i) => {
+    b.className = 'progress-block';
+    if (idx < 4) {
+      if (i < (idx+1)*2) b.classList.add(['p1','p2','p3','p4'][Math.floor(i/2)]);
+      else b.classList.add('p-inactive');
+    } else {
+      [0,1].forEach(j => blocks[j].classList.add('p1'));
+      [2,3].forEach(j => blocks[j].classList.add('p2'));
+      [4,5].forEach(j => blocks[j].classList.add('p3'));
+      [6,7].forEach(j => { blocks[j].classList.add('p4'); blocks[j].classList.add('p-inactive'); });
+    }
+  });
+}
+</script>
